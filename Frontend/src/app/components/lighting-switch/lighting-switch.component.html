@@ -1,0 +1,10 @@
+<div class="switch-container">
+  <div class="label-with-icon">
+    <span class="icon">{{ icon }}</span>
+    <span class="label">{{ label }}</span>
+  </div>
+  <label class="switch">
+    <input type="checkbox" [checked]="isOn" (change)="toggle()">
+    <span class="slider"></span>
+  </label>
+</div>

@@ -1,0 +1,44 @@
+<div class="profile-page">
+  <div class="hero">
+    <button class="edit-btn">Edit Profile</button>
+    <div class="avatar">
+      <span>{{ user.initials }}</span>
+      <div class="status"></div>
+    </div>
+    <div class="title">
+      <h1>{{ user.name }}</h1>
+      <div class="sub">{{ user.studentId }}</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="card">
+      <div class="card-title">CONTACT INFORMATION</div>
+      <div class="row">
+        <div class="icon mail">✉️</div>
+        <div class="info">
+          <div class="label">Email</div>
+          <div class="value">{{ user.email }}</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="icon gh">🐙</div>
+        <div class="info">
+          <div class="label">Github</div>
+          <div class="value">{{ user.github }}</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="icon pdf">📕</div>
+        <div class="info">
+          <div class="label">PDF</div>
+          <div class="value">{{ user.pdfLabel }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+

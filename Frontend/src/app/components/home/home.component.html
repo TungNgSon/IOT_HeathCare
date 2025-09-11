@@ -1,0 +1,17 @@
+<ul *ngIf="sensorData">
+  <li>❤️ Nhịp tim: {{ sensorData.heartRate.value }} {{ sensorData.heartRate.unit }}
+      <span *ngIf="!sensorData.heartRate.valid">(không hợp lệ)</span>
+  </li>
+  <li>🩸 SpO₂: {{ sensorData.spO2.value }}{{ sensorData.spO2.unit }}
+      <span *ngIf="!sensorData.spO2.valid">(không hợp lệ)</span>
+  </li>
+  <li>🌡️ Nhiệt độ: {{ sensorData.temperature.value }} {{ sensorData.temperature.unit }}
+      <span *ngIf="!sensorData.temperature.valid">(không hợp lệ)</span>
+  </li>
+</ul>
+<div style="margin-bottom: 16px;">
+  <button (click)="controlLed(1, 'on')">Bật LED 1</button>
+  <button (click)="controlLed(1, 'off')">Tắt LED 1</button>
+  <button (click)="controlLed(2, 'on')">Bật LED 2</button>
+  <button (click)="controlLed(2, 'off')">Tắt LED 2</button>
+</div>

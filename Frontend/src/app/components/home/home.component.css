@@ -1,0 +1,19 @@
+.sensor-realtime {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 16px;
+  max-width: 350px;
+  background: #fafbfc;
+}
+.sensor-item {
+  margin-bottom: 10px;
+}
+.invalid {
+  color: red;
+  margin-left: 8px;
+}
+.timestamp {
+  margin-top: 12px;
+  color: #888;
+  font-size: 0.9em;
+}

@@ -1,0 +1,133 @@
+<div class="page">
+  <h2>Device Actions</h2>
+
+  <div class="controls">
+    <div class="row">
+      <label>
+        Cột tìm kiếm
+        <select [(ngModel)]="column">
+          <option value="time">time</option>
+          <option value="id">id</option>
+          <option value="device">device</option>
+          <option value="action">action</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="row" *ngIf="column === 'id'">
+      <label>
+        Min ID
+        <input type="number" [(ngModel)]="minId" />
+      </label>
+      <label>
+        Max ID
+        <input type="number" [(ngModel)]="maxId" />
+      </label>
+      <button (click)="search()">Tìm</button>
+      <button (click)="resetSearchAndReload()">Reset</button>
+    </div>
+
+    <div class="row" *ngIf="column === 'time'">
+      <label>
+        Từ
+        <input type="datetime-local" [(ngModel)]="startTime" />
+      </label>
+      <label>
+        Đến
+        <input type="datetime-local" [(ngModel)]="endTime" />
+      </label>
+      <button (click)="search()">Tìm</button>
+      <button (click)="resetSearchAndReload()">Reset</button>
+    </div>
+
+    <div class="row" *ngIf="column === 'device'">
+      <label>
+        Device
+        <select [(ngModel)]="device">
+          <option [ngValue]="undefined">-- Chọn device --</option>
+          <option value="LED1">LED1</option>
+          <option value="LED2">LED2</option>
+        </select>
+      </label>
+      <button (click)="search()">Tìm</button>
+      <button (click)="resetSearchAndReload()">Reset</button>
+    </div>
+
+    <div class="row" *ngIf="column === 'action'">
+      <label>
+        Action
+        <select [(ngModel)]="action">
+          <option [ngValue]="undefined">-- Chọn action --</option>
+          <option value="ON">ON</option>
+          <option value="OFF">OFF</option>
+        </select>
+      </label>
+      <button (click)="search()">Tìm</button>
+      <button (click)="resetSearchAndReload()">Reset</button>
+    </div>
+  </div>
+
+  <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <div class="table-wrapper" *ngIf="!loading; else loadingTpl">
+    <table>
+      <thead>
+        <tr>
+          <th>
+            ID
+            <button class="sort-btn" (click)="sortByColumn('id')">
+              <span *ngIf="sortBy === 'id'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span>
+              <span *ngIf="sortBy !== 'id'">▼</span>
+            </button>
+          </th>
+          <th>
+            DEVICE
+            <button class="sort-btn" (click)="sortByColumn('device')">
+              <span *ngIf="sortBy === 'device'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span>
+              <span *ngIf="sortBy !== 'device'">▼</span>
+            </button>
+          </th>
+          <th>
+            ACTION
+            <button class="sort-btn" (click)="sortByColumn('action')">
+              <span *ngIf="sortBy === 'action'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span>
+              <span *ngIf="sortBy !== 'action'">▼</span>
+            </button>
+          </th>
+          <th>
+            TIME
+            <button class="sort-btn" (click)="sortByColumn('time')">
+              <span *ngIf="sortBy === 'time'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span>
+              <span *ngIf="sortBy !== 'time'">▼</span>
+            </button>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of rows">
+          <td>{{ r.id }}</td>
+          <td>{{ r.device }}</td>
+          <td>{{ r.action }}</td>
+          <td>{{ r.time | date:'dd/MM/yyyy HH:mm' }}</td>
+        </tr>
+        <tr *ngIf="rows.length === 0">
+          <td colspan="4" style="text-align:center">Không có dữ liệu</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ng-template #loadingTpl>
+    <div>Đang tải...</div>
+  </ng-template>
+
+  <div class="pagination" *ngIf="totalPages > 0">
+    <button [disabled]="page === 0" (click)="goToPage(0)">«</button>
+    <button [disabled]="page === 0" (click)="goToPage(page - 1)">‹</button>
+    <span>Trang {{ page + 1 }} / {{ totalPages }}</span>
+    <button [disabled]="page >= totalPages - 1" (click)="goToPage(page + 1)">›</button>
+    <button [disabled]="page >= totalPages - 1" (click)="goToPage(totalPages - 1)">»</button>
+  </div>
+</div>
+
+

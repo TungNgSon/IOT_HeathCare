@@ -1,0 +1,46 @@
+<div class="charts-container">
+  <!-- Temperature Chart -->
+  <div class="chart-wrapper temperature">
+    <h3>Temperature (°C)</h3>
+    <canvas baseChart
+      [type]="'line'"
+      [data]="temperatureData"
+      [options]="chartOptions">
+    </canvas>
+  </div>
+
+  <!-- Heart Rate Chart -->
+  <div class="chart-wrapper heart-rate">
+    <h3>Heart Rate (BPM)</h3>
+    <canvas baseChart
+      [type]="'line'"
+      [data]="heartRateData"
+      [options]="chartOptions">
+    </canvas>
+  </div>
+
+  <!-- SpO2 Chart -->
+  <div class="chart-wrapper spo2">
+    <h3>SpO2 (%)</h3>
+    <canvas baseChart
+      [type]="'line'"
+      [data]="spo2Data"
+      [options]="chartOptions">
+    </canvas>
+  </div>
+
+  <div class="chart-legends">
+    <div class="legend-item temperature">
+      <span class="legend-dot"></span>
+      <span>Temperature</span>
+    </div>
+    <div class="legend-item heart-rate">
+      <span class="legend-dot"></span>
+      <span>Heart Rate</span>
+    </div>
+    <div class="legend-item spo2">
+      <span class="legend-dot"></span>
+      <span>SpO2</span>
+    </div>
+  </div>
+</div>

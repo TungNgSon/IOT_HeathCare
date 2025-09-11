@@ -1,0 +1,117 @@
+.vital-card {
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.vital-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.vital-value {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.unit {
+  font-size: 18px;
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+.normal-range {
+  font-size: 12px;
+  color: #999;
+  margin-top: 4px;
+}
+
+/* Các loại card khác nhau theo màu sắc */
+.vital-card.body-temperature {
+  background-color: #fce4e4;
+  color: #d32f2f;
+}
+
+.vital-card.heart-beat {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.vital-card.spo2 {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.vital-card.body-temperature .normal-range {
+  color: #ef9a9a;
+}
+
+.vital-card.heart-beat .normal-range {
+  color: #64b5f6;
+}
+
+.vital-card.spo2 .normal-range {
+  color: #81c784;
+}
+
+.charts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.chart-wrapper {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  height: 200px;
+
+  h3 {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 1rem;
+  }
+
+  canvas {
+    width: 100% !important;
+    height: 150px !important;
+  }
+}
+
+.chart-legends {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #666;
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  &.temperature .legend-dot {
+    background-color: #ff4d4f;
+  }
+
+  &.heart-rate .legend-dot {
+    background-color: #1890ff;
+  }
+
+  &.spo2 .legend-dot {
+    background-color: #52c41a;
+  }
+}

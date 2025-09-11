@@ -1,0 +1,17 @@
+<div class="lighting-control">
+  <h3><span class="icon">💡</span> Smart Lighting Control</h3>
+  <div class="switches">
+    <app-lighting-switch
+      label="LED1"
+      icon="💡"
+      [id]="1"
+      (stateChange)="onToggleLight(1, $event)">
+    </app-lighting-switch>
+    <app-lighting-switch
+      label="LED2"
+      icon="💡"
+      [id]="2"
+      (stateChange)="onToggleLight(2, $event)">
+    </app-lighting-switch>
+  </div>
+</div>

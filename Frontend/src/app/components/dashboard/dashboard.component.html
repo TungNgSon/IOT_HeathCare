@@ -1,0 +1,21 @@
+<div class="dashboard">
+  <h1 class="dashboard-title">Health Care IOT System</h1>
+
+  <div class="vitals-container">
+    <app-vitals-summary [sensorData]="sensorData"></app-vitals-summary>
+  </div>
+
+  <div class="dashboard-content">
+    <div class="metrics-section">
+      <h2>Health Metrics Trend (24h)</h2>
+      <app-vital-card 
+          [data]="sensorData"
+          [last24hData]="last24hData">
+      </app-vital-card>
+    </div>
+
+    <div class="control-section">
+      <app-smart-lighting-controll></app-smart-lighting-controll>
+    </div>
+  </div>
+</div>

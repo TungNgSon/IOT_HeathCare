@@ -1,0 +1,48 @@
+.smart-lighting-card {
+  padding: 24px;
+  border-radius: 12px;
+}
+
+.card-header {
+  font-size: 18px;
+  font-weight: 500;
+  color: #555;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-icon {
+  color: #ffc107;
+  margin-right: 8px;
+}
+
+.lighting-switches {
+  display: grid;
+  gap: 16px;
+}
+
+.lighting-control {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  h3 {
+    font-size: 1.2rem;
+    color: #444;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+
+    .icon {
+      margin-right: 0.5rem;
+    }
+  }
+
+  .switches {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
