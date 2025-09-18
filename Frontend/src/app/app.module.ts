@@ -11,6 +11,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 // Routing
 import { AppRoutingModule } from './app-routing.module';
+import { RouterModule } from '@angular/router';
 
 // Components
 import { AppComponent } from './app.component';
@@ -22,6 +23,9 @@ import { LightingSwitchComponent } from './components/lighting-switch/lighting-s
 import { SensorsListComponent } from './components/sensors-list/sensors-list.component';
 import { DeviceActionListComponent } from './components/device-action-list/device-action-list.component';
 import { ProfileComponent } from './components/profile/profile.component';
+import { LoginComponent } from './components/login/login.component';
+import { RegisterComponent } from './components/register/register.component';
+import { HeaderComponent } from './components/header/header.component';
 
 
 @NgModule({
@@ -34,11 +38,15 @@ import { ProfileComponent } from './components/profile/profile.component';
     LightingSwitchComponent,
     SensorsListComponent,
     DeviceActionListComponent,
-    ProfileComponent
+    ProfileComponent,
+    LoginComponent,
+    RegisterComponent,
+    HeaderComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
+    RouterModule,
     HttpClientModule,
     BrowserAnimationsModule,
     MatCardModule,

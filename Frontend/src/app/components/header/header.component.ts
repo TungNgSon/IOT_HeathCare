@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { AuthService } from './services/auth.service';
+import { AuthService, AuthResponse } from '../../services/auth.service';
 import { filter } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  selector: 'app-header',
+  templateUrl: './header.component.html',
+  styleUrls: ['./header.component.scss']
 })
-export class AppComponent implements OnInit {
-  title = 'frontend';
+export class HeaderComponent implements OnInit {
   isLoggedIn = false;
+  currentUser: AuthResponse | null = null;
 
   constructor(
     private authService: AuthService,
@@ -30,5 +30,15 @@ export class AppComponent implements OnInit {
 
   checkAuthStatus(): void {
     this.isLoggedIn = this.authService.isLoggedIn();
+    if (this.isLoggedIn) {
+      this.currentUser = this.authService.getUserInfo();
+    } else {
+      this.currentUser = null;
+    }
+  }
+
+  onLogout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

@@ -15,26 +15,34 @@
     <div class="card">
       <div class="card-title">CONTACT INFORMATION</div>
       <div class="row">
+        <div class="icon phone">📞</div>
+        <div class="info">
+          <div class="label">Phone</div>
+          <div class="value"><a>{{ user.phone }}</a></div>
+        </div>
+      </div>
+
+      <div class="row">
         <div class="icon mail">✉️</div>
         <div class="info">
           <div class="label">Email</div>
-          <div class="value">{{ user.email }}</div>
+          <div class="value"><a >{{ user.email }}</a></div>
         </div>
       </div>
 
       <div class="row">
-        <div class="icon gh">🐙</div>
+        <div class="icon gh"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/github.svg" alt="GitHub"></div>
         <div class="info">
           <div class="label">Github</div>
-          <div class="value">{{ user.github }}</div>
+          <div class="value"><a [href]="user.github" target="_blank" rel="noopener noreferrer">{{ user.github }}</a></div>
         </div>
       </div>
 
       <div class="row">
-        <div class="icon pdf">📕</div>
+        <div class="icon pdf"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/adobeacrobatreader.svg" alt="PDF"></div>
         <div class="info">
           <div class="label">PDF</div>
-          <div class="value">{{ user.pdfLabel }}</div>
+          <div class="value"><a [href]="user.pdfLabel" target="_blank" rel="noopener noreferrer">{{ user.pdfLabel }}</a></div>
         </div>
       </div>
     </div>

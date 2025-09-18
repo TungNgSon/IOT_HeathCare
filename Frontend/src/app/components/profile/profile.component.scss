@@ -25,6 +25,7 @@
   color: #fff;
   border-radius: 8px;
   cursor: pointer;
+   display: none;
 }
 
 .avatar {
@@ -106,6 +107,12 @@
 .icon.mail { background: #4a90e2; }
 .icon.gh { background: #1f2937; }
 .icon.pdf { background: #e74c3c; }
+
+.icon img {
+  width: 18px;
+  height: 18px;
+  filter: invert(1);
+}
 
 .info .label {
   font-size: 12px;
