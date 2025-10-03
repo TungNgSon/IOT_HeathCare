@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgChartsModule } from 'ng2-charts';
 // Angular Material Modules
@@ -26,6 +26,10 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { HeaderComponent } from './components/header/header.component';
+import { CombinedChartComponent } from './components/combined-chart/combined-chart.component';
+import { PageLayoutComponent } from './components/page-layout/page-layout.component';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
 
 
 @NgModule({
@@ -41,7 +45,10 @@ import { HeaderComponent } from './components/header/header.component';
     ProfileComponent,
     LoginComponent,
     RegisterComponent,
-    HeaderComponent
+    HeaderComponent,
+    CombinedChartComponent,
+    PageLayoutComponent,
+    SidebarComponent
   ],
   imports: [
     BrowserModule,
@@ -55,7 +62,13 @@ import { HeaderComponent } from './components/header/header.component';
     NgChartsModule,
     FormsModule
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

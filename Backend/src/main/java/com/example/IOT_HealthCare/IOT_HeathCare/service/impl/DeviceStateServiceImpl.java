@@ -1,19 +1,24 @@
 package com.example.IOT_HealthCare.IOT_HeathCare.service.impl;
 
 import com.example.IOT_HealthCare.IOT_HeathCare.entities.DeviceAction;
+import com.example.IOT_HealthCare.IOT_HeathCare.handlers.SensorWebSocketHandler;
 import com.example.IOT_HealthCare.IOT_HeathCare.repository.DeviceActionRepository;
 import com.example.IOT_HealthCare.IOT_HeathCare.service.DeviceStateService;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class DeviceStateServiceImpl implements DeviceStateService {
 
     private final DeviceActionRepository deviceActionRepository;
+    private final SensorWebSocketHandler webSocketHandler;
 
-    public DeviceStateServiceImpl(DeviceActionRepository deviceActionRepository) {
+    public DeviceStateServiceImpl(DeviceActionRepository deviceActionRepository, SensorWebSocketHandler webSocketHandler) {
         this.deviceActionRepository = deviceActionRepository;
+        this.webSocketHandler = webSocketHandler;
     }
 
     @Override
@@ -45,5 +50,15 @@ public class DeviceStateServiceImpl implements DeviceStateService {
         deviceAction.setTime(new Date());
 
         deviceActionRepository.save(deviceAction);
+        
+        // Send device state update to frontend via WebSocket
+        Map<String, Object> deviceStateData = new HashMap<>();
+        deviceStateData.put("type", "deviceState");
+        deviceStateData.put("device", device);
+        deviceStateData.put("action", action);
+        deviceStateData.put("timestamp", System.currentTimeMillis());
+        
+        webSocketHandler.sendDeviceStateUpdate(deviceStateData);
+        System.out.println("📤 Sent device state update to frontend: " + device + " " + action);
     }
 }

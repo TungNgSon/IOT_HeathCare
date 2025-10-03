@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 interface DeviceAction {
   id: number;
@@ -28,14 +30,11 @@ export class DeviceActionListComponent implements OnInit {
   sortBy: 'time' | 'id' | 'device' | 'action' = 'time';
   sortDir: 'asc' | 'desc' = 'desc';
 
-  // Search state
-  column: 'id' | 'time' | 'device' | 'action' = 'time';
-  minId?: number;
-  maxId?: number;
-  startTime?: string;
-  endTime?: string;
-  device?: string;
-  action?: string;
+  // Search state - new optimized approach
+  selectedDevice: string = '';
+  selectedAction: string = '';
+  searchId?: number;
+  searchTime?: string;
 
   // Data
   rows: DeviceAction[] = [];
@@ -47,9 +46,18 @@ export class DeviceActionListComponent implements OnInit {
 
   private readonly baseUrl = 'http://localhost:8080/api/device';
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
+    // Kiểm tra authentication trước khi load data
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/login']);
+      return;
+    }
     this.fetchPage();
   }
 
@@ -59,7 +67,7 @@ export class DeviceActionListComponent implements OnInit {
     const params = new HttpParams()
       .set('page', this.page.toString())
       .set('size', this.size.toString())
-      .set('sortBy', this.sortBy)
+      .set('sortBy', this.mapColumnName(this.sortBy))
       .set('sortDir', this.sortDir);
 
     this.http.get<PageResponse<DeviceAction>>(this.baseUrl + '/page', { params }).subscribe({
@@ -70,78 +78,97 @@ export class DeviceActionListComponent implements OnInit {
         this.page = res.number ?? 0;
         this.size = res.size ?? this.size;
         this.loading = false;
+        console.log('Fetch successful:', { sortBy: this.sortBy, mappedSortBy: this.mapColumnName(this.sortBy), sortDir: this.sortDir });
       },
       error: (err) => {
         this.loading = false;
         this.errorMessage = 'Không tải được dữ liệu.';
-        console.error(err);
+        console.error('Fetch error:', err);
+        console.error('Request params:', { sortBy: this.sortBy, mappedSortBy: this.mapColumnName(this.sortBy), sortDir: this.sortDir });
       }
     });
   }
 
-  search(): void {
+
+  resetSearchAndReload(): void {
+    this.selectedDevice = '';
+    this.selectedAction = '';
+    this.searchId = undefined;
+    this.searchTime = undefined;
+    this.page = 0;
+    this.isSearchMode = false;
+    this.fetchPage();
+  }
+
+  // New optimized search methods
+  searchByDevice(): void {
+    if (!this.selectedDevice) {
+      this.resetSearchAndReload();
+      return;
+    }
+    // Clear other fields
+    this.selectedAction = '';
+    this.searchId = undefined;
+    this.searchTime = undefined;
+    this.performSearch('device', this.selectedDevice);
+  }
+
+  searchByAction(): void {
+    if (!this.selectedAction) {
+      this.resetSearchAndReload();
+      return;
+    }
+    // Clear other fields
+    this.selectedDevice = '';
+    this.searchId = undefined;
+    this.searchTime = undefined;
+    this.performSearch('action', this.selectedAction);
+  }
+
+  searchById(): void {
+    if (!this.searchId || this.searchId === 0) {
+      this.resetSearchAndReload();
+      return;
+    }
+    // Clear other fields
+    this.selectedDevice = '';
+    this.selectedAction = '';
+    this.searchTime = undefined;
+    this.performSearch('id', this.searchId.toString());
+  }
+
+  searchByTime(): void {
+    if (!this.searchTime || this.searchTime.trim() === '') {
+      this.resetSearchAndReload();
+      return;
+    }
+    // Clear other fields
+    this.selectedDevice = '';
+    this.selectedAction = '';
+    this.searchId = undefined;
+    this.performSearch('time', this.searchTime.trim());
+  }
+
+  private performSearch(column: string, value: string): void {
     this.loading = true;
     this.errorMessage = '';
     this.isSearchMode = true;
+    this.page = 0;
 
     let params = new HttpParams()
-      .set('column', this.column)
+      .set('column', column)
       .set('page', this.page.toString())
       .set('size', this.size.toString())
-      .set('sortBy', this.sortBy)
+      .set('sortBy', this.mapColumnNameForNativeQuery(this.sortBy))
       .set('sortDir', this.sortDir);
 
-    switch (this.column) {
-      case 'id': {
-        const hasMin = this.minId != null;
-        const hasMax = this.maxId != null;
-        if ((hasMin && !hasMax) || (!hasMin && hasMax)) {
-          this.errorMessage = 'Nhập cả minId và maxId hoặc để trống cả hai.';
-          this.loading = false;
-          return;
-        }
-        if (hasMin && hasMax) {
-          params = params.set('minId', String(this.minId)).set('maxId', String(this.maxId));
-        }
-        break;
-      }
-      case 'time': {
-        if (!this.startTime || !this.endTime) {
-          this.errorMessage = 'Chọn khoảng thời gian.';
-          this.loading = false;
-          return;
-        }
-        const start = this.normalizeDateTimeLocal(this.startTime);
-        const end = this.normalizeDateTimeLocal(this.endTime);
-        if (!start || !end) {
-          this.errorMessage = 'Định dạng thời gian không hợp lệ.';
-          this.loading = false;
-          return;
-        }
-        params = params.set('startTime', start).set('endTime', end);
-        break;
-      }
-      case 'device': {
-        if (!this.device) {
-          this.errorMessage = 'Nhập device để tìm kiếm';
-          this.loading = false;
-          return;
-        }
-        params = params.set('device', this.device);
-        break;
-      }
-      case 'action': {
-        if (!this.action) {
-          this.errorMessage = 'Nhập action để tìm kiếm';
-          this.loading = false;
-          return;
-        }
-        params = params.set('action', this.action);
-        break;
-      }
+    if (column === 'time') {
+      params = params.set('timeValue', value);
+    } else {
+      params = params.set('value', value);
     }
 
-    this.http.get<PageResponse<DeviceAction>>(this.baseUrl + '/search', { params }).subscribe({
+    this.http.get<PageResponse<DeviceAction>>(this.baseUrl + '/search-exact', { params }).subscribe({
       next: (res) => {
         this.rows = res.content ?? [];
         this.totalElements = res.totalElements ?? 0;
@@ -149,39 +176,94 @@ export class DeviceActionListComponent implements OnInit {
         this.page = res.number ?? 0;
         this.size = res.size ?? this.size;
         this.loading = false;
+        console.log('Search successful:', { column, value, sortBy: this.sortBy, sortDir: this.sortDir });
       },
       error: (err) => {
         this.loading = false;
         this.errorMessage = err?.error?.message || 'Lỗi khi tìm kiếm.';
-        console.error(err);
+        console.error('Search error:', err);
       }
     });
   }
 
-  resetSearchAndReload(): void {
-    this.column = 'time';
-    this.minId = undefined;
-    this.maxId = undefined;
-    this.startTime = undefined;
-    this.endTime = undefined;
-    this.device = undefined;
-    this.action = undefined;
-    this.page = 0;
-    this.isSearchMode = false;
-    this.fetchPage();
+  private performSearchWithPage(column: string, value: string): void {
+    this.loading = true;
+    this.errorMessage = '';
+
+    let params = new HttpParams()
+      .set('column', column)
+      .set('page', this.page.toString())
+      .set('size', this.size.toString())
+      .set('sortBy', this.mapColumnNameForNativeQuery(this.sortBy))
+      .set('sortDir', this.sortDir);
+
+    if (column === 'time') {
+      params = params.set('timeValue', value);
+    } else {
+      params = params.set('value', value);
+    }
+
+    this.http.get<PageResponse<DeviceAction>>(this.baseUrl + '/search-exact', { params }).subscribe({
+      next: (res) => {
+        this.rows = res.content ?? [];
+        this.totalElements = res.totalElements ?? 0;
+        this.totalPages = res.totalPages ?? 0;
+        this.page = res.number ?? 0;
+        this.size = res.size ?? this.size;
+        this.loading = false;
+        console.log('Search with page successful:', { column, value, page: this.page, sortBy: this.sortBy, sortDir: this.sortDir });
+      },
+      error: (err) => {
+        this.loading = false;
+        this.errorMessage = err?.error?.message || 'Lỗi khi tìm kiếm.';
+        console.error('Search with page error:', err);
+      }
+    });
   }
 
   goToPage(target: number): void {
     if (target < 0 || target >= this.totalPages) return;
     this.page = target;
     if (this.isSearchMode) {
-      this.search();
+      // Determine which search to perform based on current state
+      if (this.selectedDevice && this.selectedDevice !== '') {
+        this.performSearchWithPage('device', this.selectedDevice);
+      } else if (this.selectedAction && this.selectedAction !== '') {
+        this.performSearchWithPage('action', this.selectedAction);
+      } else if (this.searchId && this.searchId > 0) {
+        this.performSearchWithPage('id', this.searchId.toString());
+      } else if (this.searchTime && this.searchTime.trim() !== '') {
+        this.performSearchWithPage('time', this.searchTime.trim());
+      } else {
+        this.fetchPage();
+      }
     } else {
       this.fetchPage();
     }
   }
 
-  sortByColumn(column: 'time' | 'id' | 'device' | 'action'): void {
+  changePageSize(newSize: number): void {
+    this.size = Number(newSize);
+    this.page = 0;
+    if (this.isSearchMode) {
+      // Determine which search to perform based on current state
+      if (this.selectedDevice && this.selectedDevice !== '') {
+        this.performSearch('device', this.selectedDevice);
+      } else if (this.selectedAction && this.selectedAction !== '') {
+        this.performSearch('action', this.selectedAction);
+      } else if (this.searchId && this.searchId > 0) {
+        this.performSearch('id', this.searchId.toString());
+      } else if (this.searchTime && this.searchTime.trim() !== '') {
+        this.performSearch('time', this.searchTime.trim());
+      } else {
+        this.fetchPage();
+      }
+    } else {
+      this.fetchPage();
+    }
+  }
+
+    sortByColumn(column: 'time' | 'id' | 'device' | 'action'): void {
     if (this.sortBy === column) {
       this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
     } else {
@@ -190,30 +272,66 @@ export class DeviceActionListComponent implements OnInit {
     }
     this.page = 0;
     if (this.isSearchMode) {
-      this.search();
+      // Determine which search to perform based on current state
+      if (this.selectedDevice && this.selectedDevice !== '') {
+        this.performSearch('device', this.selectedDevice);
+      } else if (this.selectedAction && this.selectedAction !== '') {
+        this.performSearch('action', this.selectedAction);
+      } else if (this.searchId && this.searchId > 0) {
+        this.performSearch('id', this.searchId.toString());
+      } else if (this.searchTime && this.searchTime.trim() !== '') {
+        this.performSearch('time', this.searchTime.trim());
+      } else {
+        this.fetchPage();
+      }
     } else {
       this.fetchPage();
     }
   }
 
-  private normalizeDateTimeLocal(value: string | undefined): string | null {
-    if (!value) return null;
-    const hasSeconds = value.length >= 19 && /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value);
-    if (hasSeconds) return value;
-    if (/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) {
-      return value + ':00';
-    }
-    const d = new Date(value);
-    if (isNaN(d.getTime())) return null;
-    const pad = (n: number) => (n < 10 ? '0' + n : '' + n);
-    const yyyy = d.getFullYear();
-    const MM = pad(d.getMonth() + 1);
-    const dd = pad(d.getDate());
-    const HH = pad(d.getHours());
-    const mm = pad(d.getMinutes());
-    const ss = pad(d.getSeconds());
-    return `${yyyy}-${MM}-${dd}T${HH}:${mm}:${ss}`;
+  // Map frontend column names to backend field names
+  private mapColumnName(column: string): string {
+    const columnMapping: { [key: string]: string } = {
+      'id': 'id',
+      'device': 'device',
+      'action': 'action',
+      'time': 'time'
+    };
+    return columnMapping[column] || column;
   }
+
+  // Map frontend column names to database column names for native queries
+  private mapColumnNameForNativeQuery(column: string): string {
+    const columnMapping: { [key: string]: string } = {
+      'id': 'id',
+      'device': 'device',
+      'action': 'action',
+      'time': 'time'
+    };
+    return columnMapping[column] || column;
+  }
+
+
+  copyToClipboard(timeString: string): void {
+    // Format time string to yyyy-MM-dd HH:mm:ss format
+    const date = new Date(timeString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    
+    const formattedTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    
+    navigator.clipboard.writeText(formattedTime).then(() => {
+      // You can add a toast notification here if needed
+      console.log('Đã copy thời gian:', formattedTime);
+    }).catch(err => {
+      console.error('Lỗi khi copy:', err);
+    });
+  }
+
 }
 
 

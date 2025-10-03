@@ -1,0 +1,25 @@
+<div class="combined-chart-container">
+  <h3>Health Metrics Trend (24h)</h3>
+  <div class="chart-wrapper">
+    <canvas baseChart
+      [type]="'line'"
+      [data]="combinedChartData"
+      [options]="chartOptions">
+    </canvas>
+  </div>
+  
+  <div class="chart-info">
+    <div class="info-item">
+      <span class="info-label">Temperature:</span>
+      <span class="info-value">{{ data?.temperature?.value || '--' }}°C</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Heart Rate:</span>
+      <span class="info-value">{{ data?.heartRate?.value || '--' }} BPM</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">SpO2:</span>
+      <span class="info-value">{{ data?.spO2?.value || '--' }}%</span>
+    </div>
+  </div>
+</div>

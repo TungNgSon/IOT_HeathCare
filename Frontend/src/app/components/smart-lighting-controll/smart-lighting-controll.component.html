@@ -5,13 +5,22 @@
       label="LED1"
       icon="💡"
       [id]="1"
+      [isOn]="lights[0].isOn"
       (stateChange)="onToggleLight(1, $event)">
     </app-lighting-switch>
     <app-lighting-switch
       label="LED2"
       icon="💡"
       [id]="2"
+      [isOn]="lights[1].isOn"
       (stateChange)="onToggleLight(2, $event)">
+    </app-lighting-switch>
+    <app-lighting-switch
+      label="LED3"
+      icon="💡"
+      [id]="3"
+      [isOn]="lights[2].isOn"
+      (stateChange)="onToggleLight(3, $event)">
     </app-lighting-switch>
   </div>
 </div>

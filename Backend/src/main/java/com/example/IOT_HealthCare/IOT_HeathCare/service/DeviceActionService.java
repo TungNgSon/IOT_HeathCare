@@ -11,8 +11,6 @@ public interface DeviceActionService {
 
     Page<DeviceAction> getAllDeviceActions(Pageable pageable);
 
-
-
     Page<DeviceAction> searchDeviceActions(
             String column,
             Integer minId,
@@ -22,4 +20,14 @@ public interface DeviceActionService {
             String device,
             String action,
             Pageable pageable);
+
+    // Exact search methods
+    Page<DeviceAction> findByColumnAndExactValue(String column, String value, Pageable pageable);
+    Page<DeviceAction> findByExactTime(Date exactTime, Pageable pageable);
+    Page<DeviceAction> findByTimePattern(String timePattern, String patternType, Pageable pageable);
+    Page<DeviceAction> searchByTimeValue(String timeValue, Pageable pageable);
+    DeviceAction getLatestActionByDevice(String device);
+    
+    // Multi-filter search với time pattern support
+    Page<DeviceAction> findByMultipleFiltersWithTimePattern(String device, String action, String timeValue, Pageable pageable);
 }

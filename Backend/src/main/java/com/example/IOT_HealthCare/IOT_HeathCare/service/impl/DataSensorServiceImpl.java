@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
@@ -86,7 +87,7 @@ public class DataSensorServiceImpl implements DataSensorService {
             dataSensor.setBodyTemperature(tempValid ? temperature : 0.0);
 
             // Lưu vào database
-            if(hrValid && spo2Valid && tempValid) {
+            if (hrValid && spo2Valid && tempValid) {
                 dataSensorRepository.save(dataSensor);
                 System.out.println("✅ Đã lưu dữ liệu vào database với ID: " + dataSensor.getId());
             }
@@ -233,16 +234,18 @@ public class DataSensorServiceImpl implements DataSensorService {
             return java.util.Collections.emptyList();
         }
     }
+
     // lay cac ban ghi trong 24h gan nhat
-    public List<DataSensor> findLast24HoursData()
-    {
+    public List<DataSensor> findLast24HoursData() {
         return dataSensorRepository.find24HRecordsAgo();
     }
+
     // lay tat ca ban ghi de phan trang
     @Override
     public Page<DataSensor> findAll(Pageable pageable) {
         return dataSensorRepository.findAll(pageable);
     }
+
     @Override
     public Page<DataSensor> findByNumericColumnAndValueRange(String column, double minValue, double maxValue, Pageable pageable) {
         try {
@@ -265,5 +268,71 @@ public class DataSensorServiceImpl implements DataSensorService {
             System.err.println("❌ Lỗi khi tìm kiếm theo khoảng thời gian: " + e.getMessage());
             return Page.empty(pageable);
         }
+    }
+
+    @Override
+    public Page<DataSensor> findByNumericColumnAndExactValue(String column, double value, Pageable pageable) {
+        try {
+            // Validate column name
+            if (!column.equals("id") && !column.equals("heartRate") && !column.equals("SPO2") && !column.equals("bodyTemperature")) {
+                throw new IllegalArgumentException("Cột không hợp lệ: " + column);
+            }
+            return dataSensorRepository.findByNumericColumnAndExactValue(column, value, pageable);
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi khi tìm kiếm theo giá trị cụ thể: " + e.getMessage());
+            return Page.empty(pageable);
+        }
+    }
+
+//    @Override
+//    public Page<DataSensor> findByExactTime(Date exactTime, Pageable pageable) {
+//        try {
+//            return dataSensorRepository.findByExactTime(exactTime, pageable);
+//        } catch (Exception e) {
+//            System.err.println("❌ Lỗi khi tìm kiếm theo thời gian chính xác: " + e.getMessage());
+//            return Page.empty(pageable);
+//        }
+//    }
+
+    @Override
+    public Page<DataSensor> findByTimePattern(String timePattern, String patternType, Pageable pageable) {
+        try {
+            return dataSensorRepository.findByTimePattern(timePattern, patternType, pageable);
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi khi tìm kiếm theo pattern thời gian: " + e.getMessage());
+            return Page.empty(pageable);
+        }
+    }
+
+    public Page<DataSensor> searchByTimeValue(String timeValue, Pageable pageable) throws ParseException {
+
+        String[] patternInfo = parseTimeInput(timeValue);
+        if (patternInfo == null) {
+            throw new IllegalArgumentException("Định dạng thời gian không hợp lệ: " + timeValue);
+        }
+
+        return findByTimePattern(patternInfo[0], patternInfo[1], pageable);
+    }
+
+
+    private String[] parseTimeInput(String timeInput) {
+        timeInput = timeInput.trim().replace("T", " ");
+
+        if (timeInput.matches("\\d{4}")) {
+            return new String[]{timeInput, "year"};
+        } else if (timeInput.matches("\\d{4}-\\d{2}")) {
+            return new String[]{timeInput, "month"};
+        } else if (timeInput.matches("\\d{4}-\\d{2}-\\d{2}")) {
+            return new String[]{timeInput, "day"};
+        } else if (timeInput.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}")) {
+            return new String[]{timeInput, "hour"};
+        } else if (timeInput.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}")) {
+            return new String[]{timeInput, "minute"};
+        } else if (timeInput.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}")) {
+            // THÊM DÒNG NÀY - để dùng pattern search thay vì exact search
+            return new String[]{timeInput, "second"};
+        }
+
+        return null;
     }
 }

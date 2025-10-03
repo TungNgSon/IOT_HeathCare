@@ -8,5 +8,6 @@ import lombok.Setter;
 public class ResponseUserLoginDTO {
     private int id;
     private String username;
+    private String token;
     //private String phoneNumber;
 }

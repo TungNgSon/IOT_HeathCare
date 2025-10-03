@@ -67,12 +67,13 @@ export class AuthService {
     return throwError(() => new Error(errorMessage));
   }
 
-  // Lưu user info vào localStorage
+  // Lưu user info và JWT token vào localStorage
   setUserInfo(userInfo: AuthResponse): void {
     localStorage.setItem('userInfo', JSON.stringify(userInfo));
-    // Tạo một token đơn giản cho demo (trong thực tế backend sẽ tạo JWT)
-    const token = btoa(`${userInfo.username}:${Date.now()}`);
-    localStorage.setItem('token', token);
+    // Sử dụng JWT token từ backend
+    if (userInfo.token) {
+      localStorage.setItem('token', userInfo.token);
+    }
   }
 
   // Lấy user info từ localStorage

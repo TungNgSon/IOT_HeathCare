@@ -1,18 +1,18 @@
 <div class="vitals-grid">
   
-  <div class="vital-card temperature">
+  <div class="vital-card temperature" [ngClass]="'status-' + getTemperatureStatus()">
     <div class="vital-title">BODY TEMPERATURE</div>
     <div class="vital-value">{{ sensorData?.temperature?.value || '--' }}°C</div>
     <div class="vital-range">Normal Range: 36.1-37.2°C</div>
   </div>
 
-  <div class="vital-card heart-rate">
+  <div class="vital-card heart-rate" [ngClass]="'status-' + getHeartRateStatus()">
     <div class="vital-title">HEART BEAT</div>
     <div class="vital-value">{{ sensorData?.heartRate?.value || '--' }} BPM</div>
     <div class="vital-range">Normal Range: 60-100 BMP</div>
   </div>
 
-  <div class="vital-card spo2">
+  <div class="vital-card spo2" [ngClass]="'status-' + getSpO2Status()">
     <div class="vital-title">SPO2</div>
     <div class="vital-value">{{ sensorData?.spO2?.value || '--' }}%</div>
     <div class="vital-range">Normal Range: 95-100%</div>

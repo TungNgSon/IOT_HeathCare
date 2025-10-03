@@ -197,4 +197,9 @@ public class SensorWebSocketHandler extends TextWebSocketHandler {
         data.put("timestamp", System.currentTimeMillis());
         sendToAllSessions(data);
     }
+
+    // Method để gửi device state update
+    public void sendDeviceStateUpdate(Map<String, Object> deviceStateData) {
+        sendToAllSessions(deviceStateData);
+    }
 }

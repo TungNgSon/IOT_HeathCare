@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 interface DataSensor {
   id: number;
@@ -32,10 +34,7 @@ export class SensorsListComponent implements OnInit {
 
   // Search state
   column: 'id' | 'heartRate' | 'SPO2' | 'bodyTemperature' | 'time' = 'time';
-  minValue?: number;
-  maxValue?: number;
-  startTime?: string;
-  endTime?: string;
+  searchValue?: string | number;
 
   // Data
   rows: DataSensor[] = [];
@@ -47,9 +46,18 @@ export class SensorsListComponent implements OnInit {
 
   private readonly baseUrl = 'http://localhost:8080/api/sensors';
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
+    // Kiểm tra authentication trước khi load data
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/login']);
+      return;
+    }
     this.fetchPage();
   }
 
@@ -59,7 +67,7 @@ export class SensorsListComponent implements OnInit {
     const params = new HttpParams()
       .set('page', this.page.toString())
       .set('size', this.size.toString())
-      .set('sortBy', this.sortBy)
+      .set('sortBy', this.mapColumnName(this.sortBy))
       .set('sortDir', this.sortDir);
 
     this.http.get<PageResponse<DataSensor>>(this.baseUrl + '/page', { params }).subscribe({
@@ -70,70 +78,45 @@ export class SensorsListComponent implements OnInit {
         this.page = res.number ?? 0;
         this.size = res.size ?? this.size;
         this.loading = false;
+        console.log('Fetch successful:', { sortBy: this.sortBy, mappedSortBy: this.mapColumnName(this.sortBy), sortDir: this.sortDir });
       },
       error: (err) => {
         this.loading = false;
         this.errorMessage = 'Không tải được dữ liệu.';
-        console.error(err);
+        console.error('Fetch error:', err);
+        console.error('Request params:', { sortBy: this.sortBy, mappedSortBy: this.mapColumnName(this.sortBy), sortDir: this.sortDir });
       }
     });
   }
 
-  search(): void {
+  search(resetPage: boolean = true): void {
     this.loading = true;
     this.errorMessage = '';
     this.isSearchMode = true;
+    if (resetPage) {
+      this.page = 0; // Reset to first page when starting new search
+    }
+
+    // Kiểm tra nếu không có giá trị tìm kiếm thì load tất cả
+    if (!this.searchValue || this.searchValue === '') {
+      this.resetSearchAndReload();
+      return;
+    }
 
     let params = new HttpParams()
       .set('column', this.column)
       .set('page', this.page.toString())
       .set('size', this.size.toString())
-      .set('sortBy', this.sortBy)
+      .set('sortBy', this.mapColumnNameForNativeQuery(this.sortBy))
       .set('sortDir', this.sortDir);
 
     if (this.column === 'time') {
-      if (!this.startTime || !this.endTime) {
-        this.errorMessage = 'Chọn khoảng thời gian.';
-        this.loading = false;
-        return;
-      }
-      const start = this.normalizeDateTimeLocal(this.startTime);
-      const end = this.normalizeDateTimeLocal(this.endTime);
-      if (!start || !end) {
-        this.errorMessage = 'Định dạng thời gian không hợp lệ.';
-        this.loading = false;
-        return;
-      }
-      if (new Date(start) > new Date(end)) {
-        this.errorMessage = 'Khoảng thời gian không hợp lệ: Từ > Đến';
-        this.loading = false;
-        return;
-      }
-      params = params.set('startTime', start).set('endTime', end);
+      params = params.set('timeValue', String(this.searchValue));
     } else {
-      // For numeric columns: if both empty = fetch all, if one filled = require both
-      const hasMin = this.minValue != null && this.minValue !== undefined;
-      const hasMax = this.maxValue != null && this.maxValue !== undefined;
-      
-      if (hasMin && !hasMax) {
-        this.errorMessage = 'Nhập cả min và max hoặc để trống cả hai.';
-        this.loading = false;
-        return;
-      }
-      if (!hasMin && hasMax) {
-        this.errorMessage = 'Nhập cả min và max hoặc để trống cả hai.';
-        this.loading = false;
-        return;
-      }
-      
-      // If both have values, add them to params
-      if (hasMin && hasMax) {
-        params = params.set('minValue', String(this.minValue)).set('maxValue', String(this.maxValue));
-      }
-      // If both empty, don't add min/max params (backend will fetch all)
+      params = params.set('numericValue', String(this.searchValue));
     }
 
-    this.http.get<PageResponse<DataSensor>>(this.baseUrl + '/search', { params }).subscribe({
+    this.http.get<PageResponse<DataSensor>>(this.baseUrl + '/search-exact', { params }).subscribe({
       next: (res) => {
         this.rows = res.content ?? [];
         this.totalElements = res.totalElements ?? 0;
@@ -152,10 +135,7 @@ export class SensorsListComponent implements OnInit {
 
   resetSearchAndReload(): void {
     this.column = 'time';
-    this.minValue = undefined;
-    this.maxValue = undefined;
-    this.startTime = undefined;
-    this.endTime = undefined;
+    this.searchValue = undefined;
     this.page = 0;
     this.isSearchMode = false;
     this.fetchPage();
@@ -165,7 +145,7 @@ export class SensorsListComponent implements OnInit {
     if (target < 0 || target >= this.totalPages) return;
     this.page = target;
     if (this.isSearchMode) {
-      this.search();
+      this.search(false); // Don't reset page when paginating
     } else {
       this.fetchPage();
     }
@@ -175,7 +155,7 @@ export class SensorsListComponent implements OnInit {
     this.size = Number(newSize);
     this.page = 0;
     if (this.isSearchMode) {
-      this.search();
+      this.search(false); // Don't reset page when changing page size (already reset above)
     } else {
       this.fetchPage();
     }
@@ -194,33 +174,55 @@ export class SensorsListComponent implements OnInit {
     this.page = 0; // Reset to first page when sorting
     
     if (this.isSearchMode) {
-      this.search();
+      this.search(false); // Don't reset page when sorting (already reset above)
     } else {
       this.fetchPage();
     }
   }
 
-  private normalizeDateTimeLocal(value: string | undefined): string | null {
-    if (!value) return null;
-    // value from <input type="datetime-local"> is usually 'YYYY-MM-DDTHH:mm' (length 16)
-    // Backend expects 'yyyy-MM-dd\'T\'HH:mm:ss'
-    const hasSeconds = value.length >= 19 && /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value);
-    if (hasSeconds) return value;
-    // Append ':00' seconds
-    if (/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) {
-      return value + ':00';
-    }
-    // Fallback: try to parse and reformat
-    const d = new Date(value);
-    if (isNaN(d.getTime())) return null;
-    const pad = (n: number) => (n < 10 ? '0' + n : '' + n);
-    const yyyy = d.getFullYear();
-    const MM = pad(d.getMonth() + 1);
-    const dd = pad(d.getDate());
-    const HH = pad(d.getHours());
-    const mm = pad(d.getMinutes());
-    const ss = pad(d.getSeconds());
-    return `${yyyy}-${MM}-${dd}T${HH}:${mm}:${ss}`;
+  // Map frontend column names to backend field names
+  private mapColumnName(column: string): string {
+    const columnMapping: { [key: string]: string } = {
+      'heartRate': 'heartRate',
+      'bodyTemperature': 'bodyTemperature', 
+      'SPO2': 'SPO2',
+      'id': 'id',
+      'time': 'time'
+    };
+    return columnMapping[column] || column;
+  }
+
+  // Map frontend column names to database column names for native queries
+  private mapColumnNameForNativeQuery(column: string): string {
+    const columnMapping: { [key: string]: string } = {
+      'heartRate': 'heart_rate',
+      'bodyTemperature': 'body_temperature', 
+      'SPO2': 'SPO2',
+      'id': 'id',
+      'time': 'time'
+    };
+    return columnMapping[column] || column;
+  }
+
+
+  copyToClipboard(timeString: string): void {
+    // Format time string to yyyy-MM-dd HH:mm:ss format
+    const date = new Date(timeString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    
+    const formattedTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    
+    navigator.clipboard.writeText(formattedTime).then(() => {
+      // You can add a toast notification here if needed
+      console.log('Đã copy thời gian:', formattedTime);
+    }).catch(err => {
+      console.error('Lỗi khi copy:', err);
+    });
   }
 }
 

@@ -16,4 +16,7 @@ public interface DataSensorService {
     public Page<DataSensor> findAll(Pageable pageable);
     Page<DataSensor> findByNumericColumnAndValueRange(String column, double minValue, double maxValue, Pageable pageable);
     Page<DataSensor> findByTimeRange(Date startTime, Date endTime, Pageable pageable);
+    Page<DataSensor> findByNumericColumnAndExactValue(String column, double value, Pageable pageable);
+    //Page<DataSensor> findByExactTime(Date exactTime, Pageable pageable);
+    Page<DataSensor> findByTimePattern(String timePattern, String patternType, Pageable pageable);
 }

@@ -1,0 +1,24 @@
+<div class="sidebar">
+  <div class="sidebar-header">
+    <h2 class="logo">🏥 IOT Health</h2>
+  </div>
+  
+  <nav class="sidebar-nav">
+    <ul class="nav-list">
+      <li *ngFor="let item of menuItems" 
+          class="nav-item" 
+          [class.active]="item.active"
+          (click)="navigateTo(item.route)">
+        <span class="nav-icon">{{ item.icon }}</span>
+        <span class="nav-title">{{ item.title }}</span>
+      </li>
+    </ul>
+  </nav>
+  
+  <div class="sidebar-footer">
+    <button class="logout-btn" (click)="logout()">
+      <span class="nav-icon">🚪</span>
+      <span class="nav-title">Logout</span>
+    </button>
+  </div>
+</div>

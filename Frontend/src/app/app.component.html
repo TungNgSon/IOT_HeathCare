@@ -1,13 +1,3 @@
-<app-header></app-header>
-
-<nav class="top-nav" *ngIf="isLoggedIn">
-  <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
-  <a routerLink="/sensors" routerLinkActive="active">Sensors</a>
-  <a routerLink="/device-actions" routerLinkActive="active">Device Actions</a>
-  <a routerLink="/profile" routerLinkActive="active">Profile</a>
-  <span class="spacer"></span>
-</nav>
-
 <main class="page-container">
   <router-outlet></router-outlet>
 </main>

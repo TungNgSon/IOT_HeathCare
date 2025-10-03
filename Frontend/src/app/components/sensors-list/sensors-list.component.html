@@ -1,5 +1,5 @@
-<div class="page">
-  <h2>Danh sách dữ liệu cảm biến</h2>
+<app-page-layout title="Danh sách dữ liệu cảm biến">
+  <div class="page">
 
   <div class="controls">
     <div class="row">
@@ -13,31 +13,21 @@
           <option value="bodyTemperature">bodyTemperature</option>
         </select>
       </label>
-
-    </div>
-
-    <div class="row" *ngIf="column !== 'time'">
+      
       <label>
-        Min
-        <input type="number" [(ngModel)]="minValue" />
+        Giá trị tìm kiếm
+        <input 
+          *ngIf="column !== 'time'" 
+          type="number" 
+          [(ngModel)]="searchValue" 
+        />
+        <input 
+          *ngIf="column === 'time'" 
+          type="text" 
+          [(ngModel)]="searchValue" 
+        />
       </label>
-      <label>
-        Max
-        <input type="number" [(ngModel)]="maxValue" />
-      </label>
-      <button (click)="search()">Tìm</button>
-      <button (click)="resetSearchAndReload()">Reset</button>
-    </div>
-
-    <div class="row" *ngIf="column === 'time'">
-      <label>
-        Từ
-        <input type="datetime-local" [(ngModel)]="startTime" />
-      </label>
-      <label>
-        Đến
-        <input type="datetime-local" [(ngModel)]="endTime" />
-      </label>
+      
       <button (click)="search()">Tìm</button>
       <button (click)="resetSearchAndReload()">Reset</button>
     </div>
@@ -92,7 +82,12 @@
           <td>{{ r.bodyTemperature }}°C</td>
           <td>{{ r.heartRate }}</td>
           <td>{{ r.spo2 ?? r.sPO2 }}%</td>
-          <td>{{ r.time | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td class="time-cell">
+            {{ r.time | date:'yyyy-MM-dd HH:mm:ss' }}
+            <button class="copy-btn" (click)="copyToClipboard(r.time)" title="Copy thời gian">
+              📋
+            </button>
+          </td>
         </tr>
         <tr *ngIf="rows.length === 0">
           <td colspan="5" style="text-align:center">Không có dữ liệu</td>
@@ -111,7 +106,17 @@
     <span>Trang {{ page + 1 }} / {{ totalPages }}</span>
     <button [disabled]="page >= totalPages - 1" (click)="goToPage(page + 1)">›</button>
     <button [disabled]="page >= totalPages - 1" (click)="goToPage(totalPages - 1)">»</button>
+    
+    <label class="page-size-selector">
+      Số bản ghi mỗi trang:
+      <select [(ngModel)]="size" (change)="changePageSize(size)">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+    </label>
   </div>
-</div>
-
-
+  </div>
+</app-page-layout>

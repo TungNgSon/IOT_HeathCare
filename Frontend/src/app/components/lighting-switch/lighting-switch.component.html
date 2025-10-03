@@ -1,6 +1,8 @@
 <div class="switch-container">
   <div class="label-with-icon">
-    <span class="icon">{{ icon }}</span>
+    <span class="icon" [class.on]="isOn" [class.off]="!isOn">
+      {{ isOn ? '💡' : '🔘' }}
+    </span>
     <span class="label">{{ label }}</span>
   </div>
   <label class="switch">

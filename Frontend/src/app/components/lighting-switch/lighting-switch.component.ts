@@ -9,12 +9,12 @@ export class LightingSwitchComponent {
   @Input() label: string = '';
   @Input() icon: string = '';
   @Input() id: number = 0;
+  @Input() isOn: boolean = false; // Make it an input so parent can control it
   @Output() stateChange = new EventEmitter<boolean>();
-  
-  isOn: boolean = false;
 
   toggle() {
-    this.isOn = !this.isOn;
-    this.stateChange.emit(this.isOn);
+    // Don't change isOn immediately - let parent handle the state
+    // Just emit the desired state
+    this.stateChange.emit(!this.isOn);
   }
 }

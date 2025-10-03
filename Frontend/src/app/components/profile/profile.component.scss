@@ -41,6 +41,14 @@
   font-size: 32px;
   margin-right: 16px;
   box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+  overflow: hidden;
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .avatar .status {
@@ -107,6 +115,7 @@
 .icon.mail { background: #4a90e2; }
 .icon.gh { background: #1f2937; }
 .icon.pdf { background: #e74c3c; }
+.icon.postman { background: #ff6c37; }
 
 .icon img {
   width: 18px;

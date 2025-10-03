@@ -25,12 +25,20 @@ export interface SensorData {
   timestamp: string;
 }
 
+export interface DeviceStateMessage {
+  type: string;
+  device: string;
+  action: string;
+  timestamp: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class WebsocketService {
   private socket: WebSocket;
   private sensorSubject = new Subject<SensorData>();
+  private deviceStateSubject = new Subject<DeviceStateMessage>();
 
   constructor() {
     this.socket = new WebSocket('ws://localhost:8080/ws/sensor');
@@ -44,8 +52,16 @@ export class WebsocketService {
 
     this.socket.onmessage = (event) => {
       try {
-        const data: SensorData = JSON.parse(event.data);
-        this.sensorSubject.next(data);
+        const data = JSON.parse(event.data);
+        
+        // Check if it's sensor data
+        if (data.type === 'sensorData' || (data.heartRate && data.temperature)) {
+          this.sensorSubject.next(data as SensorData);
+        }
+        // Check if it's device state message
+        else if (data.type === 'deviceState') {
+          this.deviceStateSubject.next(data as DeviceStateMessage);
+        }
       } catch (e) {
         console.error('❌ Lỗi parse WebSocket data:', e);
       }
@@ -66,6 +82,19 @@ export class WebsocketService {
 
   getSensorData(): Observable<SensorData> {
     return this.sensorSubject.asObservable();
+  }
+
+  getDeviceStateMessages(): Observable<DeviceStateMessage> {
+    return this.deviceStateSubject.asObservable();
+  }
+
+  /**
+   * Gửi device state message để trigger cập nhật UI
+   * @param message Device state message
+   */
+  sendDeviceStateMessage(message: any): void {
+    console.log('📤 Sending device state message:', message);
+    this.deviceStateSubject.next(message);
   }
 
   closeConnection(): void {

@@ -1,34 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
-import { AuthService } from './services/auth.service';
-import { filter } from 'rxjs/operators';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   title = 'frontend';
-  isLoggedIn = false;
-
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
-
-  ngOnInit(): void {
-    this.checkAuthStatus();
-    
-    // Listen to route changes to update auth status
-    this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe(() => {
-        this.checkAuthStatus();
-      });
-  }
-
-  checkAuthStatus(): void {
-    this.isLoggedIn = this.authService.isLoggedIn();
-  }
 }

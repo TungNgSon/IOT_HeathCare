@@ -1,0 +1,68 @@
+.combined-chart-container {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  height: 500px;
+
+  h3 {
+    font-size: 1.2rem;
+    color: #444;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .chart-wrapper {
+    height: 350px;
+    margin-bottom: 1rem;
+  }
+
+  .chart-info {
+    display: flex;
+    justify-content: space-around;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+
+      .info-label {
+        font-size: 0.9rem;
+        color: #666;
+        font-weight: 500;
+      }
+
+      .info-value {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #333;
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .combined-chart-container {
+    height: auto;
+    
+    .chart-wrapper {
+      height: 300px;
+    }
+    
+    .chart-info {
+      flex-direction: column;
+      gap: 1rem;
+      
+      .info-item {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+    }
+  }
+}

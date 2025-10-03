@@ -58,4 +58,32 @@ public interface DataSensorRepository extends JpaRepository<DataSensor, Integer>
     Page<DataSensor> findByTimeRange(@Param("startTime") Date startTime,
                                      @Param("endTime") Date endTime,
                                      Pageable pageable);
+    @Query(value = "SELECT * FROM data_sensor WHERE " +
+            "CASE WHEN :column = 'id' THEN CAST(id AS DOUBLE) " +
+            "WHEN :column = 'heartRate' THEN heart_rate " +
+            "WHEN :column = 'SPO2' THEN spo2 " +
+            "WHEN :column = 'bodyTemperature' THEN body_temperature " +
+            "END = :value",
+            nativeQuery = true)
+    Page<DataSensor> findByNumericColumnAndExactValue(@Param("column") String column,
+                                                      @Param("value") double value,
+                                                      Pageable pageable);
+
+    // Exact time search
+//    @Query("SELECT d FROM DataSensor d WHERE d.time = :exactTime")
+//    Page<DataSensor> findByExactTime(@Param("exactTime") Date exactTime, Pageable pageable);
+
+    // Time pattern search - for year/month/day/hour/minute
+    @Query(value = "SELECT * FROM data_sensor WHERE " +
+            "CASE WHEN :patternType = 'year' THEN YEAR(time) = :pattern " +
+            "WHEN :patternType = 'month' THEN DATE_FORMAT(time, '%Y-%m') = :pattern " +
+            "WHEN :patternType = 'day' THEN DATE_FORMAT(time, '%Y-%m-%d') = :pattern " +
+            "WHEN :patternType = 'hour' THEN DATE_FORMAT(time, '%Y-%m-%d %H') = :pattern " +
+            "WHEN :patternType = 'minute' THEN DATE_FORMAT(time, '%Y-%m-%d %H:%i') = :pattern " +
+            "WHEN :patternType = 'second' THEN DATE_FORMAT(time, '%Y-%m-%d %H:%i:%s') = :pattern " + // THÊM DÒNG NÀY
+            "END = 1",
+            nativeQuery = true)
+    Page<DataSensor> findByTimePattern(@Param("pattern") String pattern,
+                                       @Param("patternType") String patternType,
+                                       Pageable pageable);
 }

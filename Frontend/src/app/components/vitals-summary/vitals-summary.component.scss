@@ -8,20 +8,78 @@
 .vital-card {
   padding: 1.5rem;
   border-radius: 12px;
+  transition: all 0.3s ease;
   
   &.temperature {
     background: #fff1f0;
     border-left: 4px solid #ff4d4f;
+    
+    &.status-low {
+      background: #e6f7ff;
+      border-left-color: #1890ff;
+      .vital-value { color: #1890ff; }
+    }
+    
+    &.status-normal {
+      background: #f6ffed;
+      border-left-color: #52c41a;
+      .vital-value { color: #52c41a; }
+    }
+    
+    &.status-high {
+      background: #fff2f0;
+      border-left-color: #ff4d4f;
+      .vital-value { color: #ff4d4f; }
+      box-shadow: 0 0 20px rgba(255, 77, 79, 0.3);
+    }
   }
   
   &.heart-rate {
     background: #f0f5ff;
     border-left: 4px solid #4096ff;
+    
+    &.status-low {
+      background: #e6f7ff;
+      border-left-color: #1890ff;
+      .vital-value { color: #1890ff; }
+    }
+    
+    &.status-normal {
+      background: #f6ffed;
+      border-left-color: #52c41a;
+      .vital-value { color: #52c41a; }
+    }
+    
+    &.status-high {
+      background: #fff2f0;
+      border-left-color: #ff4d4f;
+      .vital-value { color: #ff4d4f; }
+      box-shadow: 0 0 20px rgba(255, 77, 79, 0.3);
+    }
   }
   
   &.spo2 {
     background: #f6ffed;
     border-left: 4px solid #52c41a;
+    
+    &.status-low {
+      background: #fff2f0;
+      border-left-color: #ff4d4f;
+      .vital-value { color: #ff4d4f; }
+      box-shadow: 0 0 20px rgba(255, 77, 79, 0.3);
+    }
+    
+    &.status-normal {
+      background: #f6ffed;
+      border-left-color: #52c41a;
+      .vital-value { color: #52c41a; }
+    }
+    
+    &.status-high {
+      background: #e6f7ff;
+      border-left-color: #1890ff;
+      .vital-value { color: #1890ff; }
+    }
   }
 }
 

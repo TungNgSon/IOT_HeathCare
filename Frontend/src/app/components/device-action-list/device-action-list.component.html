@@ -1,68 +1,47 @@
-<div class="page">
-  <h2>Device Actions</h2>
+<app-page-layout title="Device Actions">
+  <div class="page">
 
   <div class="controls">
     <div class="row">
       <label>
-        Cột tìm kiếm
-        <select [(ngModel)]="column">
-          <option value="time">time</option>
-          <option value="id">id</option>
-          <option value="device">device</option>
-          <option value="action">action</option>
-        </select>
-      </label>
-    </div>
-
-    <div class="row" *ngIf="column === 'id'">
-      <label>
-        Min ID
-        <input type="number" [(ngModel)]="minId" />
-      </label>
-      <label>
-        Max ID
-        <input type="number" [(ngModel)]="maxId" />
-      </label>
-      <button (click)="search()">Tìm</button>
-      <button (click)="resetSearchAndReload()">Reset</button>
-    </div>
-
-    <div class="row" *ngIf="column === 'time'">
-      <label>
-        Từ
-        <input type="datetime-local" [(ngModel)]="startTime" />
-      </label>
-      <label>
-        Đến
-        <input type="datetime-local" [(ngModel)]="endTime" />
-      </label>
-      <button (click)="search()">Tìm</button>
-      <button (click)="resetSearchAndReload()">Reset</button>
-    </div>
-
-    <div class="row" *ngIf="column === 'device'">
-      <label>
         Device
-        <select [(ngModel)]="device">
-          <option [ngValue]="undefined">-- Chọn device --</option>
+        <select [(ngModel)]="selectedDevice" (change)="searchByDevice()">
+          <option value="">Tất cả devices</option>
           <option value="LED1">LED1</option>
           <option value="LED2">LED2</option>
+          <option value="LED3">LED3</option>
         </select>
       </label>
-      <button (click)="search()">Tìm</button>
-      <button (click)="resetSearchAndReload()">Reset</button>
-    </div>
-
-    <div class="row" *ngIf="column === 'action'">
+      
       <label>
         Action
-        <select [(ngModel)]="action">
-          <option [ngValue]="undefined">-- Chọn action --</option>
+        <select [(ngModel)]="selectedAction" (change)="searchByAction()">
+          <option value="">Tất cả actions</option>
           <option value="ON">ON</option>
           <option value="OFF">OFF</option>
         </select>
       </label>
-      <button (click)="search()">Tìm</button>
+      
+      <label>
+        ID
+        <input 
+          type="number" 
+          [(ngModel)]="searchId" 
+          (keyup.enter)="searchById()"
+        />
+        <button (click)="searchById()">Tìm ID</button>
+      </label>
+      
+      <label>
+        Time
+        <input 
+          type="text" 
+          [(ngModel)]="searchTime" 
+          (keyup.enter)="searchByTime()"
+        />
+        <button (click)="searchByTime()">Tìm Time</button>
+      </label>
+      
       <button (click)="resetSearchAndReload()">Reset</button>
     </div>
   </div>
@@ -108,7 +87,12 @@
           <td>{{ r.id }}</td>
           <td>{{ r.device }}</td>
           <td>{{ r.action }}</td>
-          <td>{{ r.time | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td class="time-cell">
+            {{ r.time | date:'yyyy-MM-dd HH:mm:ss' }}
+            <button class="copy-btn" (click)="copyToClipboard(r.time)" title="Copy thời gian">
+              📋
+            </button>
+          </td>
         </tr>
         <tr *ngIf="rows.length === 0">
           <td colspan="4" style="text-align:center">Không có dữ liệu</td>
@@ -127,7 +111,17 @@
     <span>Trang {{ page + 1 }} / {{ totalPages }}</span>
     <button [disabled]="page >= totalPages - 1" (click)="goToPage(page + 1)">›</button>
     <button [disabled]="page >= totalPages - 1" (click)="goToPage(totalPages - 1)">»</button>
+    
+    <label class="page-size-selector">
+      Số bản ghi mỗi trang:
+      <select [(ngModel)]="size" (change)="changePageSize(size)">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+    </label>
   </div>
-</div>
-
-
+  </div>
+</app-page-layout>

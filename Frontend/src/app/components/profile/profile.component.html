@@ -1,8 +1,9 @@
-<div class="profile-page">
+<app-page-layout title="Profile">
+  <div class="profile-page">
   <div class="hero">
     <button class="edit-btn">Edit Profile</button>
     <div class="avatar">
-      <span>{{ user.initials }}</span>
+      <img src="assets/portrait.png" alt="Profile Picture" class="avatar-image">
       <div class="status"></div>
     </div>
     <div class="title">
@@ -45,8 +46,15 @@
           <div class="value"><a [href]="user.pdfLabel" target="_blank" rel="noopener noreferrer">{{ user.pdfLabel }}</a></div>
         </div>
       </div>
+
+      <div class="row">
+        <div class="icon postman"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/postman.svg" alt="Postman"></div>
+        <div class="info">
+          <div class="label">Postman API Collection</div>
+          <div class="value"><a [href]="user.postman" target="_blank" rel="noopener noreferrer">IOT Healthcare API Collection</a></div>
+        </div>
+      </div>
     </div>
   </div>
-</div>
-
-
+  </div>
+</app-page-layout>

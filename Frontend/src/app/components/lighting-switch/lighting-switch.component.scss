@@ -45,6 +45,17 @@ mat-icon {
 
     .icon {
       font-size: 1.2rem;
+      transition: all 0.3s ease;
+      
+      &.on {
+        filter: drop-shadow(0 0 8px #ffc107);
+        transform: scale(1.1);
+      }
+      
+      &.off {
+        opacity: 0.6;
+        filter: grayscale(0.3);
+      }
     }
 
     .label {
